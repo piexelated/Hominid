@@ -7,9 +7,9 @@ import java.util.EnumSet;
 
 class FollowPlayerGoal extends Goal {
     private final Vampire entity;
-    private final double followDistance = 120.0;
-    private final double stopDistance = 25.0;
-    private final double fleeDistance = 15.0;
+    private static final double FOLLOW_DISTANCE = 120.0;
+    private static final double STOP_DISTANCE = 25.0;
+    private static final double FLEE_DISTANCE = 15.0;
     private Player targetPlayer;
 
     public FollowPlayerGoal(Vampire entity) {
@@ -19,7 +19,7 @@ class FollowPlayerGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        Player player = entity.level().getNearestPlayer(entity, followDistance);
+        Player player = entity.level().getNearestPlayer(entity, FOLLOW_DISTANCE);
         if (player == null || entity.getTarget() == player || player.isCreative() || entity.getTarget() != null) {
             return false;
         }
@@ -31,7 +31,7 @@ class FollowPlayerGoal extends Goal {
     @Override
     public void start(){
         double distanceToPlayer = entity.distanceTo(targetPlayer);
-        if (distanceToPlayer > stopDistance) {
+        if (distanceToPlayer > STOP_DISTANCE) {
             entity.getNavigation().moveTo(targetPlayer, 1.0);
         }
     }
@@ -43,19 +43,19 @@ class FollowPlayerGoal extends Goal {
         }
 
         double distanceToPlayer = entity.distanceTo(targetPlayer);
-        return distanceToPlayer <= followDistance;
+        return distanceToPlayer <= FOLLOW_DISTANCE;
     }
 
     @Override
     public void tick() {
         double distanceToPlayer = entity.distanceTo(targetPlayer);
 
-        if (distanceToPlayer < fleeDistance) {
+        if (distanceToPlayer < FLEE_DISTANCE) {
             moveAwayFromPlayer();
-        } else if (distanceToPlayer >= fleeDistance && distanceToPlayer <= stopDistance) {
+        } else if (distanceToPlayer >= FLEE_DISTANCE && distanceToPlayer <= STOP_DISTANCE) {
             entity.getNavigation().stop();
             entity.getLookControl().setLookAt(targetPlayer, 30.0F, 30.0F);
-        } else if (distanceToPlayer > stopDistance && distanceToPlayer <= followDistance) {
+        } else if (distanceToPlayer > STOP_DISTANCE && distanceToPlayer <= FOLLOW_DISTANCE) {
             entity.getNavigation().moveTo(targetPlayer, 1.0);
         }
     }

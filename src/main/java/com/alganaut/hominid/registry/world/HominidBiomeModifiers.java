@@ -1,13 +1,12 @@
 package com.alganaut.hominid.registry.world;
 
 import com.alganaut.hominid.Hominid;
-import com.alganaut.hominid.registry.entity.HominidEntityCreator;
+import com.alganaut.hominid.registry.HominidEntityCreator;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.neoforged.neoforge.common.world.BiomeModifier;
@@ -22,9 +21,6 @@ public class HominidBiomeModifiers {
     public static final ResourceKey<BiomeModifier> SPAWN_FAMISHED = registerKey("spawn_famished");
     public static final ResourceKey<BiomeModifier> SPAWN_FOSSILIZED = registerKey("spawn_fossilized");
     public static final ResourceKey<BiomeModifier> SPAWN_VAMPIRE = registerKey("spawn_vampire");
-
-    public static final ResourceKey<BiomeModifier> SPAWN_JUGGERNAUT = registerKey("spawn_juggernaut");
-    public static final ResourceKey<BiomeModifier> SPAWN_BELLMAN = registerKey("spawn_bellman");
 
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         var biomes = context.lookup(Registries.BIOME);

@@ -3,11 +3,7 @@ package com.alganaut.hominid.entity.bellman;
 import com.alganaut.hominid.entity.animation.IdleAnimationController;
 import com.alganaut.hominid.entity.behavior.SunlightBurning;
 import com.alganaut.hominid.entity.goal.AttackTurtleEggGoal;
-import com.alganaut.hominid.registry.misc.HominidTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -25,10 +21,43 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 
+import java.util.List;
+
 public class Bellman extends Monster {
     public final AnimationState attackAnimationState = new AnimationState();
     public final AnimationState idleAnimationState = new AnimationState();
     private final IdleAnimationController idleAnimationController = new IdleAnimationController(250);
+    public static final List<String> SUPPORTED_SUMMONS = List.of(
+            "minecraft:zombie",
+            "minecraft:husk",
+            "minecraft:drowned",
+            "minecraft:skeleton",
+            "minecraft:stray",
+            "minecraft:bogged",
+            "hominid:incendiary",
+            "hominid:mellified",
+            "hominid:famished",
+            "hominid:juggernaut",
+            "hominid:fossilized",
+            "hominid:vampire",
+            "galosphere:preserved",
+            "minecraft:parched",
+            "alexscaves:boundroid",
+            "alexscaves:caniac",
+            "alexscaves:brainiac",
+            "netherexp:vessel",
+            "caverns_and_chasms:mime",
+            "spawn:barbed",
+            "species:quake",
+            "opposing_force:frowzy",
+            "opposing_force:rambler",
+            "quark:forgotten",
+            "undead_unleashed:wraith",
+            "undead_unleashed:dreadknight",
+            "nomansland:buried",
+            "nomansland:remnant",
+            "windswept:chilled"
+    );
 
     int summonCooldown;
 
@@ -46,17 +75,17 @@ public class Bellman extends Monster {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new SummonUndeadGoal(this));
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(4, new AttackTurtleEggGoal(this, 1.0, 3, 1.14));
-        this.goalSelector.addGoal(1, new FollowPlayerGoal(this, 1.0, 3.0F, 20.0F));
-        this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
-        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0, 0.0F));
-        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
-        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
+        goalSelector.addGoal(1, new SummonUndeadGoal(this));
+        goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(4, new AttackTurtleEggGoal(this, 1.0, 3, 1.14));
+        goalSelector.addGoal(1, new FollowPlayerGoal(this, 1.0, 3.0F, 20.0F));
+        goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
+        goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0, 0.0F));
+        goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, true));
     }
     protected boolean isSunSensitive() {
         return true;
@@ -64,8 +93,8 @@ public class Bellman extends Monster {
 
     @Override
     public void tick() {
-        if (this.level().isClientSide()) {
-            this.idleAnimationController.tick(this, this.idleAnimationState);
+        if (level().isClientSide()) {
+            idleAnimationController.tick(this, idleAnimationState);
         }
         if(summonCooldown >= -100){
             summonCooldown--;
@@ -75,53 +104,10 @@ public class Bellman extends Monster {
 
     @Override
     public void aiStep() {
-        if (this.isAlive() && this.isSunSensitive() && this.isSunBurnTick()) {
+        if (isAlive() && isSunSensitive() && isSunBurnTick()) {
             SunlightBurning.apply(this);
         }
         super.aiStep();
-    }
-
-    static EntityType<?>[] getSummonPool() {
-        return BuiltInRegistries.ENTITY_TYPE
-                .getTag(HominidTags.EntityType.BELLMAN_SPAWNABLE)
-                .map(holders -> holders.stream()
-                        .map(Holder::value)
-                        .toArray(EntityType<?>[]::new))
-                .orElseGet(Bellman::getDefaultSummonPool);
-    }
-
-    private static EntityType<?>[] getDefaultSummonPool() {
-        return new EntityType<?>[]{
-                EntityType.ZOMBIE,
-                EntityType.HUSK,
-                EntityType.DROWNED,
-                EntityType.SKELETON,
-                EntityType.STRAY,
-                EntityType.BOGGED,
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("hominid", "incendiary")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("hominid", "mellified")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("hominid", "famished")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("hominid", "juggernaut")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("hominid", "fossilized")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("hominid", "vampire")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("galosphere", "preserved")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("minecraft", "parched")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("alexscaves", "boundroid")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("alexscaves", "caniac")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("alexscaves", "brainiac")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("netherexp", "vessel")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("caverns_and_chasms", "mime")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("spawn", "barbed")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("species", "quake")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("opposing_force", "frowzy")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("opposing_force", "rambler")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("quark", "forgotten")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("undead_unleashed", "wraith")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("undead_unleashed", "dreadknight")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("nomansland", "buried")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("nomansland", "remnant")),
-                BuiltInRegistries.ENTITY_TYPE.get(ResourceLocation.fromNamespaceAndPath("windswept", "chilled"))
-        };
     }
 
     @Override
@@ -151,8 +137,8 @@ public class Bellman extends Monster {
     @Override
     public void handleEntityEvent(byte state) {
         if (state == 60){
-            this.attackAnimationState.stop();
-            this.attackAnimationState.startIfStopped(this.tickCount);
+            attackAnimationState.stop();
+            attackAnimationState.startIfStopped(tickCount);
         }
         else super.handleEntityEvent(state);
     }
@@ -160,7 +146,7 @@ public class Bellman extends Monster {
     @Override
     public boolean doHurtTarget(Entity entity) {
         if(!level().isClientSide){
-            this.level().broadcastEntityEvent(this, (byte) 60);
+            level().broadcastEntityEvent(this, (byte) 60);
         }
         return super.doHurtTarget(entity);
     }

@@ -1,5 +1,6 @@
 package com.alganaut.hominid.entity.bellman;
 
+import com.alganaut.hominid.Config;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -36,7 +37,7 @@ class SummonUndeadGoal extends Goal {
             return;
         }
 
-        EntityType<?>[] entityPool = Bellman.getSummonPool();
+        EntityType<?>[] entityPool = Config.getBellmanSummons;
         if (entityPool.length == 0) {
             return;
         }

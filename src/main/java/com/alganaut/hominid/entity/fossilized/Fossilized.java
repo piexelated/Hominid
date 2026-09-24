@@ -27,6 +27,8 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.common.ItemAbilities;
 
 public class Fossilized extends Monster {
+    static final byte THROW_ANIMATION_EVENT = 70;
+    static final byte STOP_THROW_ANIMATION_EVENT = 90;
     public enum AttackState {
         IDLE,
         PREPARING,
@@ -99,12 +101,12 @@ public class Fossilized extends Monster {
 
     @Override
     public void handleEntityEvent(byte state) {
-        if (state == 70) {
+        if (state == THROW_ANIMATION_EVENT) {
             throwAnimationState.stop();
             idleAnimationState.stop();
             throwAnimationState.startIfStopped(tickCount);
         }
-        if (state == 90) {
+        if (state == STOP_THROW_ANIMATION_EVENT) {
             throwAnimationState.stop();
         }
         super.handleEntityEvent(state);

@@ -71,7 +71,7 @@ class SummonUndeadGoal extends Goal {
 
         serverLevel.addFreshEntity(entity);
         bellman.playSound(SoundEvents.BELL_BLOCK);
-        serverLevel.broadcastEntityEvent(bellman, (byte) 60);
+        serverLevel.broadcastEntityEvent(bellman, Bellman.ATTACK_ANIMATION_EVENT);
         bellman.summonCooldown = 600;
     }
 }

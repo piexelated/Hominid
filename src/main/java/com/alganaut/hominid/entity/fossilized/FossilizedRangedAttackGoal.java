@@ -79,7 +79,7 @@ class FossilizedRangedAttackGoal extends Goal {
         fossilized.attackState = Fossilized.AttackState.ANIMATING;
         animationTimer = 18;
         if (!fossilized.level().isClientSide) {
-            fossilized.level().broadcastEntityEvent(fossilized, (byte) 70);
+            fossilized.level().broadcastEntityEvent(fossilized, Fossilized.THROW_ANIMATION_EVENT);
         }
         fossilized.getNavigation().stop();
         fossilized.getLookControl().setLookAt(target, 30.0F, 30.0F);
@@ -94,7 +94,7 @@ class FossilizedRangedAttackGoal extends Goal {
         fossilized.getNavigation().stop();
 
         if (!fossilized.level().isClientSide) {
-            fossilized.level().broadcastEntityEvent(fossilized, (byte) 90);
+            fossilized.level().broadcastEntityEvent(fossilized, Fossilized.STOP_THROW_ANIMATION_EVENT);
         }
 
         throwRock(target);

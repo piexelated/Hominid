@@ -37,7 +37,7 @@ class SummonUndeadGoal extends Goal {
             return;
         }
 
-        EntityType<?>[] entityPool = Config.getBellmanSummons;
+        EntityType<?>[] entityPool = Config.getBellmanSummons();
         if (entityPool.length == 0) {
             return;
         }

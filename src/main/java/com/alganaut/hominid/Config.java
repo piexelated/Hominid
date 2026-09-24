@@ -10,6 +10,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static EntityType<?>[] bellmanSummons;
 
     private static final ModConfigSpec.ConfigValue<List<? extends String>> BELLMAN_SUMMONS = BUILDER
             .comment("Entities the bellman can summon.")
@@ -21,11 +22,19 @@ public class Config {
         return obj instanceof String entity && ResourceLocation.tryParse(entity) != null;
     }
 
-    public static final EntityType<?>[] getBellmanSummons = Bellman.SUPPORTED_SUMMONS.stream()
-            .map(ResourceLocation::tryParse)
-            .filter(Objects::nonNull)
-            .map(BuiltInRegistries.ENTITY_TYPE::getOptional)
-            .flatMap(Optional::stream)
-            .distinct()
-            .toArray(EntityType<?>[]::new);
+
+
+
+    public static EntityType<?>[] getBellmanSummons() {
+        if (bellmanSummons == null) {
+            bellmanSummons = BELLMAN_SUMMONS.get().stream()
+                    .map(ResourceLocation::tryParse)
+                    .filter(Objects::nonNull)
+                    .map(BuiltInRegistries.ENTITY_TYPE::getOptional)
+                    .flatMap(Optional::stream)
+                    .distinct()
+                    .toArray(EntityType<?>[]::new)
+        }
+        return bellmanSummons;
+    }
 }

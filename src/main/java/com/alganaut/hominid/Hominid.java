@@ -17,13 +17,15 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
+import java.util.List;
+
 @Mod(Hominid.MODID)
 public class Hominid {
     public static final String MODID = "hominid";
     public static final Logger LOGGER = LogUtils.getLogger();
 
     // Contains all the registries
-    private static final ImmutableList<DeferredRegister<?>> REGISTRIES = ImmutableList.of(
+    private static final List<DeferredRegister<?>> REGISTRIES = List.of(
             HominidItems.ITEMS,
             HominidBlocks.BLOCKS,
             HominidSounds.SOUND_EVENTS,

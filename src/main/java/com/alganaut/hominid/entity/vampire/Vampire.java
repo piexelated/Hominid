@@ -22,6 +22,7 @@ import net.minecraft.world.level.LevelReader;
 public class Vampire extends Monster {
     private static final byte ATTACK_ANIMATION_EVENT = 100;
     static final byte DIE_ANIMATION_EVENT = 101;
+    static final byte STOP_BURNING_ANIMATION_EVENT = 99;
     private final IdleAnimationController idleAnimationController = new IdleAnimationController(120);
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
@@ -56,22 +57,22 @@ public class Vampire extends Monster {
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
-        this.goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0, 0.0F));
-        this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
-        this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-        this.goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.2, false));
-        this.targetSelector.addGoal(2, new TargetDamagedEntityGoal(this));
-        this.targetSelector.addGoal(2, new BurnInSunGoal(this));
-        this.targetSelector.addGoal(2, new FollowPlayerGoal(this) {
+        goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
+        goalSelector.addGoal(7, new WaterAvoidingRandomStrollGoal(this, 1.0, 0.0F));
+        goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        goalSelector.addGoal(8, new RandomLookAroundGoal(this));
+        targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        goalSelector.addGoal(3, new MeleeAttackGoal(this, 1.2, false));
+        targetSelector.addGoal(2, new TargetDamagedEntityGoal(this));
+        targetSelector.addGoal(2, new BurnInSunGoal(this));
+        targetSelector.addGoal(2, new FollowPlayerGoal(this) {
             @Override
             public boolean canUse() {
                 return !Vampire.this.isAggressive() && super.canUse();
             }
         });
-        this.goalSelector.addGoal(9, new AvoidEntityGoal<>(this, Player.class, 6.0F, 1.0, 1.0) {
+        goalSelector.addGoal(9, new AvoidEntityGoal<>(this, Player.class, 6.0F, 1.0, 1.0) {
             @Override
             public boolean canUse() {
                 return !Vampire.this.isAggressive() && super.canUse();
@@ -81,8 +82,8 @@ public class Vampire extends Monster {
 
     @Override
     public void tick() {
-        if (this.level().isClientSide()) {
-            this.idleAnimationController.tick(this, this.idleAnimationState);
+        if (level().isClientSide()) {
+            idleAnimationController.tick(this, idleAnimationState);
         }
         super.tick();
     }
@@ -90,7 +91,7 @@ public class Vampire extends Monster {
     @Override
     public boolean doHurtTarget(Entity entity) {
         if (!level().isClientSide) {
-            this.level().broadcastEntityEvent(this, ATTACK_ANIMATION_EVENT);
+            level().broadcastEntityEvent(this, ATTACK_ANIMATION_EVENT);
         }
         return super.doHurtTarget(entity);
     }
@@ -101,32 +102,46 @@ public class Vampire extends Monster {
     }
 
     @Override
+    public void setRemainingFireTicks(int remainingFireTicks) {
+        if (remainingFireTicks == 0 && !level().isClientSide) {
+            level().broadcastEntityEvent(this, STOP_BURNING_ANIMATION_EVENT);
+        }
+        super.setRemainingFireTicks(remainingFireTicks);
+    }
+
+    @Override
     public boolean isInvertedHealAndHarm() {
         return true;
     }
 
     void dieAndPerish() {
-        if (!this.isAlive()) return;
-
-        if (this.level() instanceof ServerLevel serverLevel) {
-            serverLevel.sendParticles(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.0, this.getZ(), 20, 0.5, 0.5, 0.5, 0.1);
+        if (!isAlive()) {
+            return;
         }
-        this.scream();
+
+        if (level() instanceof ServerLevel serverLevel) {
+            serverLevel.sendParticles(ParticleTypes.SMOKE, getX(), getY() + 1.0, getZ(), 20, 0.5, 0.5, 0.5, 0.1);
+        }
+        scream();
     }
 
     @Override
     public void handleEntityEvent(byte state) {
         if (state == ATTACK_ANIMATION_EVENT) {
-            this.attackAnimationState.stop();
-            this.attackAnimationState.startIfStopped(this.tickCount);
+            attackAnimationState.stop();
+            attackAnimationState.startIfStopped(tickCount);
         }
         if (state == DIE_ANIMATION_EVENT) {
-            this.dieAnimationState.stop();
-            this.dieAnimationState.startIfStopped(this.tickCount);
-        } else super.handleEntityEvent(state);
+            dieAnimationState.stop();
+            dieAnimationState.startIfStopped(tickCount);
+        }
+        if (state == STOP_BURNING_ANIMATION_EVENT) {
+            dieAnimationState.stop();
+        }
+        super.handleEntityEvent(state);
     }
 
     public void scream() {
-        this.level().playSound(null, this.getX(), this.getY(), this.getZ(), HominidSounds.VAMPIRE_SCREAM.get(), this.getSoundSource(), 0.5F, 1.0F);
+        level().playSound(null, getX(), getY(), getZ(), HominidSounds.VAMPIRE_SCREAM.get(), getSoundSource(), 0.5F, 1.0F);
     }
 }

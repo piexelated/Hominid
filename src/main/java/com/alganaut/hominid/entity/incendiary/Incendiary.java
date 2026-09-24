@@ -36,6 +36,8 @@ public class Incendiary extends Monster {
     private static final EntityDataAccessor<Boolean> IGNITING =
             SynchedEntityData.defineId(Incendiary.class, EntityDataSerializers.BOOLEAN);
     public final Set<UUID> ignitedCreepers = new HashSet<>();
+    private static final byte ATTACK_ANIMATION_EVENT = 100;
+    private static final byte IGNITE_ANIMATION_EVENT = 70;
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState igniteAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
@@ -133,13 +135,13 @@ public class Incendiary extends Monster {
         ignitionTimer = IGNITION_DELAY;
         setIgniting(true);
         if(!level().isClientSide){
-            level().broadcastEntityEvent(this, (byte) 70);
+            level().broadcastEntityEvent(this, IGNITE_ANIMATION_EVENT);
         }
     }
 
     private void tickIgnitionState() {
         if(!level().isClientSide){
-            level().broadcastEntityEvent(this, (byte) 70);
+            level().broadcastEntityEvent(this, IGNITE_ANIMATION_EVENT);
         }
         if (ignitionTimer < 0) {
             return;
@@ -199,10 +201,10 @@ public class Incendiary extends Monster {
 
     @Override
     public void handleEntityEvent(byte state) {
-        if (state == 70){
+        if (state == IGNITE_ANIMATION_EVENT){
             igniteAnimationState.startIfStopped(tickCount);
         }
-        if (state == 60){
+        if (state == ATTACK_ANIMATION_EVENT){
             attackAnimationState.stop();
             attackAnimationState.startIfStopped(tickCount);
         }else{
@@ -213,7 +215,7 @@ public class Incendiary extends Monster {
     @Override
     public boolean doHurtTarget(Entity entity) {
         if(!level().isClientSide){
-            level().broadcastEntityEvent(this, (byte) 60);
+            level().broadcastEntityEvent(this, ATTACK_ANIMATION_EVENT);
         }
         if(isOnFire()){
             entity.setRemainingFireTicks(100);

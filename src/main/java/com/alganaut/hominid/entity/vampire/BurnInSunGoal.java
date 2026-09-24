@@ -22,7 +22,7 @@ class BurnInSunGoal extends Goal {
     public void tick() {
         if (isInDirectSunlight()) {
             if (sunTimer == 0) {
-                entity.level().broadcastEntityEvent(entity, (byte) 85);
+                entity.level().broadcastEntityEvent(entity, Vampire.DIE_ANIMATION_EVENT);
                 entity.setRemainingFireTicks(100);
                 triggerEvent();
             }

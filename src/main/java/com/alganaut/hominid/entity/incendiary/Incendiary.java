@@ -207,9 +207,8 @@ public class Incendiary extends Monster {
         if (state == ATTACK_ANIMATION_EVENT){
             attackAnimationState.stop();
             attackAnimationState.startIfStopped(tickCount);
-        }else{
-            super.handleEntityEvent(state);
         }
+        super.handleEntityEvent(state);
     }
 
     @Override

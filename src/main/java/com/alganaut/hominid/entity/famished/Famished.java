@@ -24,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 
 public class Famished extends Monster {
+    private static final byte ATTACK_ANIMATION_EVENT = 100;
     public final AnimationState attackAnimationState = new AnimationState();
     public final AnimationState idleAnimationState = new AnimationState();
     private final IdleAnimationController idleAnimationController = new IdleAnimationController(40);
@@ -114,7 +115,7 @@ public class Famished extends Monster {
 
     @Override
     public void handleEntityEvent(byte state) {
-        if (state == 60){
+        if (state == ATTACK_ANIMATION_EVENT){
             attackAnimationState.stop();
             attackAnimationState.startIfStopped(tickCount);
         }
@@ -124,7 +125,7 @@ public class Famished extends Monster {
     @Override
     public boolean doHurtTarget(Entity entity) {
         if(!level().isClientSide){
-            level().broadcastEntityEvent(this, (byte) 60);
+            level().broadcastEntityEvent(this, ATTACK_ANIMATION_EVENT);
         }
         return super.doHurtTarget(entity);
     }

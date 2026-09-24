@@ -20,6 +20,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 
 public class Vampire extends Monster {
+    private static final byte ATTACK_ANIMATION_EVENT = 100;
+    static final byte DIE_ANIMATION_EVENT = 101;
     private final IdleAnimationController idleAnimationController = new IdleAnimationController(120);
     public final AnimationState idleAnimationState = new AnimationState();
     public final AnimationState attackAnimationState = new AnimationState();
@@ -88,7 +90,7 @@ public class Vampire extends Monster {
     @Override
     public boolean doHurtTarget(Entity entity) {
         if (!level().isClientSide) {
-            this.level().broadcastEntityEvent(this, (byte) 65);
+            this.level().broadcastEntityEvent(this, ATTACK_ANIMATION_EVENT);
         }
         return super.doHurtTarget(entity);
     }
@@ -114,11 +116,11 @@ public class Vampire extends Monster {
 
     @Override
     public void handleEntityEvent(byte state) {
-        if (state == 65) {
+        if (state == ATTACK_ANIMATION_EVENT) {
             this.attackAnimationState.stop();
             this.attackAnimationState.startIfStopped(this.tickCount);
         }
-        if (state == 85) {
+        if (state == DIE_ANIMATION_EVENT) {
             this.dieAnimationState.stop();
             this.dieAnimationState.startIfStopped(this.tickCount);
         } else super.handleEntityEvent(state);
